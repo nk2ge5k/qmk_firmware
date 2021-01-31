@@ -1,3 +1,4 @@
+/* clang-format off */
 #pragma once
 
 #ifdef AUDIO_ENABLE
