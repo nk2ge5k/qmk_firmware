@@ -94,6 +94,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef DIP_SWITCH_ENABLE
 #    include "dip_switch.h"
 #endif
+#ifdef STM32_EEPROM_ENABLE
+#    include "eeprom_stm32.h"
+#endif
+#ifdef EEPROM_DRIVER
+#    include "eeprom_driver.h"
+#endif
 
 static uint32_t last_input_modification_time = 0;
 uint32_t        last_input_activity_time(void) { return last_input_modification_time; }
@@ -231,6 +237,12 @@ void keyboard_setup(void) {
     disable_jtag();
 #endif
     print_set_sendchar(sendchar);
+#ifdef STM32_EEPROM_ENABLE
+    EEPROM_Init();
+#endif
+#ifdef EEPROM_DRIVER
+    eeprom_driver_init();
+#endif
     matrix_setup();
     keyboard_pre_init_kb();
 }
@@ -267,6 +279,15 @@ __attribute__((weak)) void housekeeping_task_kb(void) {}
  * This is specific to user/keymap-level functionality.
  */
 __attribute__((weak)) void housekeeping_task_user(void) {}
+
+/** \brief housekeeping_task
+ *
+ * Invokes hooks for executing code after QMK is done after each loop iteration.
+ */
+void housekeeping_task(void) {
+    housekeeping_task_kb();
+    housekeeping_task_user();
+}
 
 /** \brief keyboard_init
  *
@@ -330,6 +351,9 @@ void keyboard_init(void) {
  * This is differnet than keycode events as no layer processing, or filtering occurs.
  */
 void switch_events(uint8_t row, uint8_t col, bool pressed) {
+#if defined(LED_MATRIX_ENABLE)
+    process_led_matrix(row, col, pressed);
+#endif
 #if defined(RGB_MATRIX_ENABLE)
     process_rgb_matrix(row, col, pressed);
 #endif
@@ -358,9 +382,6 @@ void keyboard_task(void) {
 #ifdef ENCODER_ENABLE
     bool encoders_changed = false;
 #endif
-
-    housekeeping_task_kb();
-    housekeeping_task_user();
 
     uint8_t matrix_changed = matrix_scan();
     if (matrix_changed) last_matrix_activity_trigger();
