@@ -18,16 +18,16 @@
 #include "muse.h"
 #include "rgblight.h"
 
-#ifdef AUDIO_ENABLE
-
-float tone_caps_on[][2]  = SONG(CAPS_LOCK_ON_SOUND);
-float tone_caps_off[][2] = SONG(CAPS_LOCK_OFF_SOUND);
-
-#endif /* AUDIO_ENABLE */
-
 enum preonic_layers { _QWERTY, _LOWER, _RAISE, _ADJUST };
 
-enum preonic_keycodes { QWERTY = SAFE_RANGE, LOWER, RAISE, BACKLIT };
+enum preonic_keycodes {
+    QWERTY = SAFE_RANGE,
+    LOWER,
+    RAISE,
+    BACKLIT,
+    TMUX,
+    ALT_SUPER,
+};
 
 /* clang-format off */
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -38,11 +38,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Tab  |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  |  [   |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * | Esc  |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |  "   |
+ * | Esc  |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |  '   |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
  * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |Enter |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Ctrl | Ctrl | GUI  | Alt  |Lower |    Space    |Raise | Alt  | Ctrl |   \  |Shift |
+ * | Ctrl | Ctrl | GUI  | Alt  |Lower |    Space    |Raise | PgUp | PgDn |   -  | TMUX |
  * `-----------------------------------------------------------------------------------'
  */
 [_QWERTY] = LAYOUT_preonic_grid(
@@ -50,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC,
   KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
   KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
-  KC_LCTL, KC_LCTL, KC_LGUI, KC_LALT, LOWER,   KC_SPC,  KC_SPC,  RAISE,   KC_RALT, KC_RCTL, KC_BSLS, KC_RSFT
+  KC_LCTL, KC_LCTL, KC_LGUI, KC_LALT, LOWER,   KC_SPC,  KC_SPC,  RAISE,   KC_PGDN, KC_PGUP, ALT_SUPER, TMUX
 ),
 
 /* Lower
@@ -63,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------|------+------+------+------+------+------|
  * | Shift|  F10 |  F11 |  F12 |      |      |      |      |      |   [  |   ]  |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | CAPS | Ctrl | GUI  | Alt  |      |             |      | Next | Vol- | Vol+ | Play |
+ * | CAPS | Ctrl | GUI  | Alt  |      |             |      | Vol- | Vol+ | Prev | Play |
  * `-----------------------------------------------------------------------------------'
  */
 [_LOWER] = LAYOUT_preonic_grid(
@@ -71,7 +71,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_7,    KC_8,    KC_9,    KC_LPRN,  KC_RPRN, KC_RBRC,
   KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F9,   KC_LCBR,  KC_RCBR, KC_PIPE,
   KC_LSFT, KC_F10,  KC_F11,  KC_F12,  _______, _______, _______, _______, _______, KC_LBRC,  KC_RBRC, _______,
-  KC_CAPS, KC_LCTL, KC_LGUI, KC_LALT, _______, _______, _______, _______, KC_MNXT, KC_VOLD,  KC_VOLU, KC_MPLY
+  KC_CAPS, KC_LCTL, KC_LGUI, KC_LALT, _______, _______, _______, _______, KC_VOLD, KC_VOLU,  KC_MPRV, KC_MPLY
 ),
 
 /* Raise
@@ -84,7 +84,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------|------+------+------+------+------+------|
  * | Shift|      |      |      |      |      |      |ISO # |ISO / | PgUp | PgDn |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | CAPS | Ctrl | GUI  | Alt  |      |             |      | Next | Vol- | Vol+ | Play |
+ * | CAPS | Ctrl | GUI  | Alt  |      |             |      | Vol+ | Vol- | Next | Play |
  * `-----------------------------------------------------------------------------------'
  */
 [_RAISE] = LAYOUT_preonic_grid(
@@ -92,7 +92,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_GRV,  _______, _______, _______, _______, _______, KC_MS_L, KC_MS_D, KC_MS_U,    KC_MS_R,    _______, KC_LBRC,
   KC_DEL,  _______, _______, _______, _______, _______, KC_LEFT, KC_DOWN, KC_UP,      KC_RIGHT,   KC_RBRC, KC_BSLS,
   KC_LSFT, _______, _______, _______, _______, _______, _______, KC_NUHS, KC_NUBS,    KC_PGUP,    KC_PGDN, _______,
-  KC_CAPS, KC_LCTL, KC_LGUI, KC_LALT, _______, _______, _______, _______, KC_MNXT,    KC_VOLD,    KC_VOLU, KC_MPLY
+  KC_CAPS, KC_LCTL, KC_LGUI, KC_LALT, _______, _______, _______, _______, KC_VOLD,    KC_VOLU,    KC_MNXT, KC_MUTE
 ),
 
 /* Adjust (Lower + Raise)
@@ -126,6 +126,10 @@ void keyboard_pre_init_user() {
     }
 }
 
+#define ALT_SUPER_TIMEOUT 800
+bool     is_alt_super_active = false;
+uint16_t alt_super_timer     = 0;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LOWER:
@@ -148,12 +152,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
             break;
+        case TMUX:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL("a"));
+            }
+            break;
+        case ALT_SUPER:
+            if (record->event.pressed) {
+                if (!is_alt_super_active) {
+                    is_alt_super_active = true;
+                    register_code(KC_LGUI);
+                }
+                alt_super_timer = timer_read();
+                register_code(KC_TAB);
+            } else {
+                unregister_code(KC_TAB);
+            }
+            break;
 #ifdef RGBLIGHT_ENABLE
         case KC_CAPS:
             if (record->event.pressed) {
                 if (!rgblight_is_enabled()) {
                     rgblight_enable();
-                    rgblight_setrgb(110, 88, 252);
+                    rgblight_setrgb(RGB_PURPLE);
                 } else {
                     rgblight_disable();
                 }
@@ -214,6 +235,12 @@ void dip_switch_update_user(uint8_t index, bool active) {
 }
 
 void matrix_scan_user(void) {
+    if (is_alt_super_active) {
+        if (timer_elapsed(alt_super_timer) > ALT_SUPER_TIMEOUT) {
+            unregister_code(KC_LGUI);
+            is_alt_super_active = false;
+        }
+    }
 #ifdef AUDIO_ENABLE
     if (muse_mode) {
         if (muse_counter == 0) {
